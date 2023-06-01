@@ -62,4 +62,4 @@ export E2E_JUNIT_OUTPUTFILE="${TARGET_FOLDER}/${JUNIT_RESULTS_FILENAME}"
 
 # Run e2e
 export PATH="$PATH:$HOME/${TARGET_FOLDER}"
-rpmamp-e2e
+podman-backend-e2e
