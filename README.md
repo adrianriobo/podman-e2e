@@ -12,7 +12,7 @@ The container is based on [deliverest](https://github.com/adrianriobo/deliverest
 ### windows amd64
 
 ```bash
-PODMAN_VERSION=4.4.4
+PODMAN_VERSION=4.5.1
 podman run --rm -it --name podman-backend-e2e \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
@@ -31,7 +31,7 @@ podman run --rm -it --name podman-backend-e2e \
 ### darwin arm64
 
 ```bash
-PODMAN_VERSION=4.4.4
+PODMAN_VERSION=4.5.1
 podman run -d --name podman-backend-e2e-darwin-m1 \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
