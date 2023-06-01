@@ -42,7 +42,7 @@ If ($backend -eq 'crc')
 }
 
 # Prepare run e2e
-mv $targetFolder/rpmamp-e2e $targetFolder/rpmamp-e2e.exe
+mv $targetFolder/podman-backend-e2e $targetFolder/podman-backend-e2e.exe
 $env:PODMAN_BINARY="podman"
 mkdir $targetFolder/tmp
 $env:TMPDIR="$env:HOME\$targetFolder/tmp"
@@ -50,4 +50,4 @@ $env:E2E_JUNIT_OUTPUTFILE="$targetFolder/$junitResultsFilename"
 
 # Run e2e
 $env:PATH="$env:PATH;$env:HOME\$targetFolder;"
-rpmamp-e2e.exe
+podman-backend-e2e.exe

@@ -2,16 +2,16 @@ PODMAN_VERSION ?= 4.4.4
 CONTAINER_MANAGER ?= podman
 
 # Image URL to use all building/pushing image targets
-IMG ?= quay.io/rhqp/prmamp-e2e:v${PODMAN_VERSION}
+IMG ?= quay.io/rhqp/podman-backend-e2e:v${PODMAN_VERSION}
 
 # Build the container image
 .PHONY: oci-build-multi-manifest
 oci-build-multi-manifest: 
 	${CONTAINER_MANAGER} manifest create ${IMG}
-	${CONTAINER_MANAGER} build -t prmamp:windows-amd64 -f Containerfile --build-arg=OS=windows --build-arg=ARCH=amd64 .
-	${CONTAINER_MANAGER} manifest add ${IMG} --os windows --arch amd64 containers-storage:localhost/prmamp:windows-amd64
-	${CONTAINER_MANAGER} build -t prmamp:darwin-amd64 -f Containerfile --build-arg=OS=darwin --build-arg=ARCH=amd64 .
-	${CONTAINER_MANAGER} manifest add ${IMG} --os darwin --arch amd64 containers-storage:localhost/prmamp:darwin-amd64
+	${CONTAINER_MANAGER} build -t podman-backend:windows-amd64 -f Containerfile --build-arg=OS=windows --build-arg=ARCH=amd64 .
+	${CONTAINER_MANAGER} manifest add ${IMG} --os windows --arch amd64 containers-storage:localhost/podman-backend:windows-amd64
+	${CONTAINER_MANAGER} build -t podman-backend:darwin-amd64 -f Containerfile --build-arg=OS=darwin --build-arg=ARCH=amd64 .
+	${CONTAINER_MANAGER} manifest add ${IMG} --os darwin --arch amd64 containers-storage:localhost/podman-backend:darwin-amd64
 
 # Push the container image
 .PHONY: oci-push-multi-manifest
@@ -20,8 +20,8 @@ oci-push-multi-manifest:
 
 .PHONY: oci-clean-multi-manifest
 oci-clean-multi-manifest:
-	${CONTAINER_MANAGER} rmi localhost/prmamp:windows-amd64
-	${CONTAINER_MANAGER} rmi localhost/prmamp:darwin-amd64
+	${CONTAINER_MANAGER} rmi localhost/podman-backend:windows-amd64
+	${CONTAINER_MANAGER} rmi localhost/podman-backend:darwin-amd64
 	${CONTAINER_MANAGER} rmi ${IMG}      
 
 # Build the container image

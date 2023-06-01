@@ -44,7 +44,7 @@ RUN apk add git gcc g++ linux-headers \
                     test/e2e/tag_test.go test/e2e/untag_test.go test/e2e/volume_exists_test.go test/e2e/volume_inspect_test.go \
                     test/e2e/volume_ls_test.go test/e2e/volume_prune_test.go test/e2e/volume_rm_test.go test/e2e/wait_test.go \
                 -tags "containers_image_openpgp exclude_graphdriver_btrfs exclude_graphdriver_devicemapper remote" \
-                -c -o ./build/rpmamp-e2e
+                -c -o ./build/podman-backend-e2e
 # test/e2e/attach_test.go
 
 FROM quay.io/rhqp/deliverest:v0.0.2
@@ -54,10 +54,10 @@ LABEL org.opencontainers.image.authors="Adrian Riobo<ariobolo@redhat.com>"
 ARG OS 
 ARG ARCH
 
-ENV ASSETS_FOLDER=/opt/prmamp \
+ENV ASSETS_FOLDER=/opt/podman-backend-e2e \
     OS=${OS} \
     ARCH=${ARCH}
 
-COPY --from=builder /go/podman/build/rpmamp-e2e ${ASSETS_FOLDER}/
+COPY --from=builder /go/podman/build/podman-backend-e2e ${ASSETS_FOLDER}/
 COPY /lib/${OS}/* ${ASSETS_FOLDER}/
 
