@@ -1,0 +1,63 @@
+
+FROM docker.io/library/golang:1.18-alpine as builder
+
+ARG PODMAN_VERSION=4.4.4 
+ARG OS 
+ARG ARCH
+
+ENV PODMAN_VERSION=${PODMAN_VERSION} \
+    GOOS=${OS} \
+    GOARCH=${ARCH} \
+    ORIGIN=https://github.com/adrianriobo/podman.git \
+    UPSTREAM=https://github.com/containers/podman.git \
+    RPMAMP_BRANCH=prmamp-e2e \
+    PRMAMP_COMMIT=c4eb6ebdca431ea5df51576764b651f97d80c6e9 \
+    AUTHOR_NAME="Adrian Riobo" \
+    AUTHOR_EMAIL="ariobolo@redhat.com"
+
+RUN apk add git gcc g++ linux-headers \
+    && git config --global user.email ${AUTHOR_EMAIL} \
+    && git config --global user.name ${AUTHOR_NAME} \
+    && git clone ${ORIGIN} \
+    && git -C podman remote add upstream ${UPSTREAM} \
+    && git -C podman checkout ${RPMAMP_BRANCH} \
+    && git -C podman fetch upstream refs/tags/v${PODMAN_VERSION}:refs/tags/v${PODMAN_VERSION} \
+    && git -C podman switch -c rpmamp v${PODMAN_VERSION} \
+    && git -C podman cherry-pick ${PRMAMP_COMMIT} --strategy-option theirs \
+    && cd podman \
+    && go test -v test/e2e/libpod_suite_test.go test/e2e/common_test.go \
+                    test/e2e/config.go test/e2e/config_amd64.go  \
+                    test/e2e/container_inspect_test.go test/e2e/events_test.go test/e2e/exists_test.go \
+                    test/e2e/export_test.go test/e2e/history_test.go test/e2e/image_scp_test.go test/e2e/import_test.go \
+                    test/e2e/init_test.go test/e2e/kill_test.go test/e2e/load_test.go test/e2e/namespace_test.go \
+                    test/e2e/negative_test.go test/e2e/network_connect_disconnect_test.go test/e2e/pause_test.go \
+                    test/e2e/pod_infra_container_test.go test/e2e/pod_initcontainers_test.go test/e2e/pod_inspect_test.go \
+                    test/e2e/pod_kill_test.go test/e2e/pod_pause_test.go test/e2e/pod_pod_namespaces_test.go \
+                    test/e2e/pod_prune_test.go test/e2e/pod_restart_test.go test/e2e/pod_rm_test.go \
+                    test/e2e/pod_stop_test.go test/e2e/pod_top_test.go test/e2e/rename_test.go \
+                    test/e2e/restart_test.go test/e2e/rm_test.go test/e2e/run_apparmor_test.go \
+                    test/e2e/run_device_test.go test/e2e/run_entrypoint_test.go test/e2e/run_exit_test.go \
+                    test/e2e/run_memory_test.go test/e2e/run_ns_test.go test/e2e/run_passwd_test.go \
+                    test/e2e/run_privileged_test.go test/e2e/run_restart_test.go test/e2e/run_seccomp_test.go \
+                    test/e2e/run_security_labels_test.go test/e2e/start_test.go test/e2e/stats_test.go \
+                    test/e2e/stop_test.go test/e2e/system_connection_test.go test/e2e/system_dial_stdio_test.go \
+                    test/e2e/tag_test.go test/e2e/untag_test.go test/e2e/volume_exists_test.go test/e2e/volume_inspect_test.go \
+                    test/e2e/volume_ls_test.go test/e2e/volume_prune_test.go test/e2e/volume_rm_test.go test/e2e/wait_test.go \
+                -tags "containers_image_openpgp exclude_graphdriver_btrfs exclude_graphdriver_devicemapper remote" \
+                -c -o ./build/rpmamp-e2e
+# test/e2e/attach_test.go
+
+FROM quay.io/rhqp/deliverest:v0.0.2
+
+LABEL org.opencontainers.image.authors="Adrian Riobo<ariobolo@redhat.com>"
+
+ARG OS 
+ARG ARCH
+
+ENV ASSETS_FOLDER=/opt/prmamp \
+    OS=${OS} \
+    ARCH=${ARCH}
+
+COPY --from=builder /go/podman/build/rpmamp-e2e ${ASSETS_FOLDER}/
+COPY /lib/${OS}/* ${ASSETS_FOLDER}/
+

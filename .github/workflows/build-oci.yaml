@@ -1,0 +1,47 @@
+name: oci-build
+
+on:
+  push:
+    branches: [ main ]
+    tags:        
+      - '*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-prmamp-e2e:
+    strategy:
+      matrix:
+        os: [windows, darwin]
+        arch: [amd64, arm64]
+    name: build-prmamp-e2e
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Pick image tag on non pull-request
+      if: github.event_name != 'pull_request'
+      shell: bash
+      run: echo "TAG=${{ GITHUB.REF_NAME}}" >> $GITHUB_ENV
+
+    - name: Pick image tag on pull-request
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: echo "TAG=${{ GITHUB.EVENT.PULL_REQUEST.HEAD.REF}}" >> $GITHUB_ENV
+
+    - name: Build image
+      shell: bash
+      run: OS=${{ matrix.os }} ARCH=${{ matrix.arch }} make oci-build
+
+    - name: Log in to quay.io Registry
+      uses: redhat-actions/podman-login@v1
+      with:
+        registry: quay.io
+        username: ${{ secrets.QUAY_IO_USERNAME }}
+        password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+    - name: Push image
+      shell: bash
+      run: OS=${{ matrix.os }} ARCH=${{ matrix.arch }} make oci-push
+        
