@@ -20,16 +20,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Pick image tag on non pull-request
-      if: github.event_name != 'pull_request'
-      shell: bash
-      run: echo "TAG=${{ GITHUB.REF_NAME}}" >> $GITHUB_ENV
-
-    - name: Pick image tag on pull-request
-      if: github.event_name == 'pull_request'
-      shell: bash
-      run: echo "TAG=${{ GITHUB.EVENT.PULL_REQUEST.HEAD.REF}}" >> $GITHUB_ENV
-
     - name: Build image
       shell: bash
       run: OS=${{ matrix.os }} ARCH=${{ matrix.arch }} make oci-build
