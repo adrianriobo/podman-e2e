@@ -5,11 +5,13 @@ param(
     $targetFolder,
     [Parameter(Mandatory,HelpMessage='junit results filename')]
     $junitResultsFilename,
+    [Parameter(HelpMessage='pullsecret filename at target folder')]
+    $pullsecretFilename,
     [Parameter(HelpMessage='backed for podman. crc or podman-machine')]
-    $backend="podman-machine"
+    $backend="podman"
 )
 
-function Backend-CRC {
+function Backend-CRC-Podman {
    crc config set preset podman
    crc setup
    crc start
@@ -19,7 +21,27 @@ function Backend-CRC {
    & crc podman-env | Invoke-Expression
 }
 
-function Backend-Podman-Machine {
+function Backend-CRC-Microshift {
+    crc config set preset microshift
+    crc setup
+    crc start -p $targetFolder/$pullsecretFilename
+    # SSH expands a terminal but due to how crc recognized the shell 
+    # it does not recognize powershell but other process so we force it
+    $env:SHELL="powershell"
+    & crc podman-env | Invoke-Expression
+ }
+
+ function Backend-CRC-Openshift {
+    crc config set preset openshift
+    crc setup
+    crc start -p $targetFolder/$pullsecretFilename
+    # SSH expands a terminal but due to how crc recognized the shell 
+    # it does not recognize powershell but other process so we force it
+    $env:SHELL="powershell"
+    & crc podman-env | Invoke-Expression
+ }
+
+function Backend-Podman {
    # Install podman machine
     wsl --install
 
@@ -33,12 +55,20 @@ function Backend-Podman-Machine {
     podman machine start
 }
 
-# Setup backend
-If ($backend -eq 'crc') 
+switch ($backend)
 {
-    Backend-CRC
-} Else {
-    Backend-Podman-Machine
+    "podman" {
+        Backend-Podman
+    }
+    "crc-podman" {
+        Backend-CRC-Podman
+    }
+    "crc-microshift" {
+        Backend-CRC-Microshift
+    }
+    "crc-openshift" {
+        Backend-CRC-Openshift
+    }
 }
 
 # Prepare run e2e

@@ -4,10 +4,6 @@
 mandatory_params () {
     local validate=1
 
-    [[ -z "${PODMAN_VERSION+x}" ]] \
-        && echo "PODMAN_VERSION required" \
-        && validate=0
-
     [[ -z "${TARGET_FOLDER+x}" ]] \
         && echo "TARGET_FOLDER required" \
         && validate=0
@@ -18,8 +14,8 @@ mandatory_params () {
 
     return $validate
 }
-
-backend_crc () {
+ 
+backend_crc_podman () {
     PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
 
     crc config set preset podman
@@ -28,7 +24,37 @@ backend_crc () {
     eval $(crc podman-env)    
 }
 
+backend_crc_microshift () {
+
+    [[ -z "${PULLSECRET_FILENAME+x}" ]] \
+        && exit 1
+
+    PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
+
+    crc config set preset microshift
+    crc setup
+    crc start -p "${TARGET_FOLDER}/${PULLSECRET_FILENAME}"
+    eval $(crc podman-env)    
+}
+
+backend_crc_openshift () {
+
+    [[ -z "${PULLSECRET_FILENAME+x}" ]] \
+        && exit 1
+
+    PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
+
+    crc config set preset openshift
+    crc setup
+    crc start -p "${TARGET_FOLDER}/${PULLSECRET_FILENAME}"
+    eval $(crc podman-env)    
+}
+
 backend_podman () {
+
+    [[ -z "${PODMAN_VERSION+x}" ]] \
+        && exit 1
+
     PODMAN_BINARY="/opt/podman/bin/podman"
 
     # Install podman
@@ -47,12 +73,30 @@ backend_podman () {
 if [[ ! mandatory_params ]]; then
     exit 1
 fi
-BACKEND="${BACKEND:-"podman-machine"}"
-if [ "${BACKEND}" == "crc" ]; then
-    backend_crc 
-else
+BACKEND="${BACKEND:-"podman"}"
+
+case "${BACKEND}" in
+  podman)
     backend_podman
-fi
+    ;;
+
+  crc-podman)
+    backend_crc_podman
+    ;;
+
+  crc-microshift)
+    backend_crc_microshift
+    ;;
+
+  crc-openshift)
+    backend_crc_openshift
+    ;;
+
+  *)
+    echo "${BACKEND} is not supported"
+    exit 1 
+    ;;
+esac
 
 # Prepare run e2e
 export PODMAN_BINARY=$PODMAN_BINARY
