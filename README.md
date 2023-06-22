@@ -12,7 +12,7 @@ An uses set of functional tests defined by [podman upstream](https://github.com/
 
 ## Usage
 
-### windows amd64 with podman backend
+### windows amd64 with podman backend (install and start)
 
 ```bash
 PODMAN_VERSION=4.5.1
@@ -28,10 +28,12 @@ podman run --rm -it --name podman-backend-e2e \
         podman-backend-e2e/run.ps1 -podmanVersion "${PODMAN_VERSION}" \
             -targetFolder podman-backend-e2e \
             -backend podman \
+            -podmanInstall 'true' \
+            -podmanStart 'true' \
             -junitResultsFilename podman-backend-e2e-results.xml
 ```
 
-### darwin arm64 with crc podman backend
+### darwin arm64 with crc podman backend (install and start)
 
 ```bash
 PODMAN_VERSION=4.5.1
