@@ -7,8 +7,12 @@ param(
     $junitResultsFilename,
     [Parameter(HelpMessage='pullsecret filename at target folder')]
     $pullsecretFilename,
-    [Parameter(HelpMessage='backed for podman. crc or podman-machine')]
-    $backend="podman"
+    [Parameter(HelpMessage='backend for podman. podman, crc-podman, crc-microshift or crc-openshift')]
+    $backend="podman",
+    [Parameter(HelpMessage='Check if podman backend should be installed, default false.')]
+    $podmanInstall="false",
+    [Parameter(HelpMessage='Check if podman machine should be started, default false.')]
+    $podmanStart="false"
 )
 
 function Backend-CRC-Podman {
@@ -46,13 +50,19 @@ function Backend-Podman {
     wsl --install
 
     # Install podman
-    curl -LO "https://github.com/containers/podman/releases/download/v$podmanVersion/podman-v$podmanVersion.msi"
-    Start-Process C:\Windows\System32\msiexec.exe -ArgumentList "/qb /i podman-v$podmanVersion.msi /norestart" -wait
-    $env:PATH="$env:PATH;C:\Program Files\RedHat\Podman"
+    if ( $podmanInstall -match 'true' )
+    {
+        curl -LO "https://github.com/containers/podman/releases/download/v$podmanVersion/podman-v$podmanVersion.msi"
+        Start-Process C:\Windows\System32\msiexec.exe -ArgumentList "/qb /i podman-v$podmanVersion.msi /norestart" -wait
+        $env:PATH="$env:PATH;C:\Program Files\RedHat\Podman"
+    }
 
-    # Start podman machine
-    podman machine init
-    podman machine start
+    if ( $podmanStart -match 'true' )
+    {
+        # Start podman machine
+        podman machine init
+        podman machine start
+    }
 }
 
 switch ($backend)

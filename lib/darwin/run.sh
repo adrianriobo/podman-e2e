@@ -58,13 +58,19 @@ backend_podman () {
     PODMAN_BINARY="/opt/podman/bin/podman"
 
     # Install podman
-    curl -kL https://github.com/containers/podman/releases/download/v${PODMAN_VERSION}/podman-installer-macos-${ARCH}.pkg -o podman-installer-macos.pkg
-    sudo installer -pkg podman-installer-macos.pkg -target /
-    PATH=$PATH:/opt/podman/bin/podman
-    
-    # Start podman machine
-    ${PODMAN_BINARY} machine init
-    ${PODMAN_BINARY} machine start
+    if [[ ${PODMAN_INSTALL} == "true" ]]
+    then
+        curl -kL https://github.com/containers/podman/releases/download/v${PODMAN_VERSION}/podman-installer-macos-${ARCH}.pkg -o podman-installer-macos.pkg
+        sudo installer -pkg podman-installer-macos.pkg -target /
+        PATH=$PATH:/opt/podman/bin/podman
+    fi
+
+    if [[ ${PODMAN_START} == "true" ]]
+    then
+        # Start podman machine
+        ${PODMAN_BINARY} machine init
+        ${PODMAN_BINARY} machine start
+    fi
 }
 
 # PODMAN_VERSION should be set
@@ -73,8 +79,14 @@ backend_podman () {
 if [[ ! mandatory_params ]]; then
     exit 1
 fi
+# Default backend podman
 BACKEND="${BACKEND:-"podman"}"
+# Check if podman backend should be installed, default false.
+PODMAN_INSTALL="${PODMAN_INSTALL:-"false"}"
+# Check if podman machine should be started, default false.
+PODMAN_START="${PODMAN_START:-"false"}"
 
+# Prepare the backend
 case "${BACKEND}" in
   podman)
     backend_podman
