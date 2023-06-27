@@ -46,8 +46,14 @@ function Backend-CRC-Microshift {
  }
 
 function Backend-Podman {
-   # Install podman machine
-    wsl --install
+    # Force install just in case
+    wsl -l -v
+    $installed=$?
+
+    if (!$installed) {
+        Write-Host "installing wsl2"
+        wsl --install  
+    }
 
     # Install podman
     if ( $podmanInstall -match 'true' )
