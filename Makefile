@@ -8,9 +8,9 @@ IMG ?= quay.io/rhqp/podman-backend-e2e:v${PODMAN_VERSION}
 .PHONY: oci-build-multi-manifest
 oci-build-multi-manifest: 
 	${CONTAINER_MANAGER} manifest create ${IMG}
-	${CONTAINER_MANAGER} build -t podman-backend:windows-amd64 -f Containerfile --build-arg=OS=windows --build-arg=ARCH=amd64 .
+	${CONTAINER_MANAGER} build -t podman-backend:windows-amd64 -f oci/Containerfile --build-arg=OS=windows --build-arg=ARCH=amd64 oci
 	${CONTAINER_MANAGER} manifest add ${IMG} --os windows --arch amd64 containers-storage:localhost/podman-backend:windows-amd64
-	${CONTAINER_MANAGER} build -t podman-backend:darwin-amd64 -f Containerfile --build-arg=OS=darwin --build-arg=ARCH=amd64 .
+	${CONTAINER_MANAGER} build -t podman-backend:darwin-amd64 -f oci/Containerfile --build-arg=OS=darwin --build-arg=ARCH=amd64 oci
 	${CONTAINER_MANAGER} manifest add ${IMG} --os darwin --arch amd64 containers-storage:localhost/podman-backend:darwin-amd64
 
 # Push the container image
@@ -27,7 +27,7 @@ oci-clean-multi-manifest:
 # Build the container image
 .PHONY: oci-build
 oci-build: 
-	${CONTAINER_MANAGER} build -t ${IMG}-${OS}-${ARCH} -f Containerfile --build-arg=OS=${OS} --build-arg=ARCH=${ARCH} .
+	${CONTAINER_MANAGER} build -t ${IMG}-${OS}-${ARCH} -f oci/Containerfile --build-arg=OS=${OS} --build-arg=ARCH=${ARCH} oci
 
 # Build the container image
 .PHONY: oci-push
