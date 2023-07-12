@@ -3,6 +3,10 @@ CONTAINER_MANAGER ?= podman
 
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/rhqp/podman-backend-e2e:v${PODMAN_VERSION}
+TKN_IMG ?= quay.io/rhqp/podman-backend-e2e-tkn:v${PODMAN_VERSION}
+
+TOOLS_DIR := tools
+include tools/tools.mk
 
 # Build the container image
 .PHONY: oci-build-multi-manifest
@@ -33,3 +37,8 @@ oci-build:
 .PHONY: oci-push
 oci-push: 
 	${CONTAINER_MANAGER} push ${IMG}-${OS}-${ARCH}
+
+# Create tekton task bundle
+.PHONY: tkn-push
+tkn-push: install-out-of-tree-tools
+	$(TOOLS_BINDIR)/tkn bundle push $(TKN_IMG) -f tkn/task.yaml
