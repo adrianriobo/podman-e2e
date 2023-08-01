@@ -149,6 +149,7 @@ spec:
           cmd="$cmd PODMAN_INSTALL=$(params.podman-install) "
           cmd="$cmd PODMAN_START=$(params.podman-start) "
           cmd="$cmd PULLSECRET_FILENAME=pullsecret "
+          cmd="$cmd ARCH=$(params.arch) "
           cmd="$cmd ${TARGET_FOLDER}/run.sh"
           ;;
 
