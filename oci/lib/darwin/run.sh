@@ -73,6 +73,24 @@ backend_podman () {
     fi
 }
 
+cleanup_backend_podman () {
+
+    PODMAN_BINARY="/opt/podman/bin/podman"
+
+    if [[ ${PODMAN_START} == "true" ]]
+    then
+        # Stop podman machine
+        ${PODMAN_BINARY} machine stop
+        ${PODMAN_BINARY} machine rm -f
+    fi
+}
+
+cleanup_backend_crc_podman () {
+
+    crc stop
+    crc cleanup
+}
+
 # PODMAN_VERSION should be set
 # TARGET_FOLDER should be set
 # JUNIT_RESULTS_FILENAME should be set
@@ -119,3 +137,19 @@ export E2E_JUNIT_OUTPUTFILE="${TARGET_FOLDER}/${JUNIT_RESULTS_FILENAME}"
 # Run e2e
 export PATH="$PATH:$HOME/${TARGET_FOLDER}"
 podman-backend-e2e
+
+# Cleanup backed
+case "${BACKEND}" in
+  podman)
+    cleanup_backend_podman
+    ;;
+
+  crc-podman|crc-microshift|crc-openshift)
+    cleanup_backend_crc_podman
+    ;;
+
+  *)
+    echo "${BACKEND} is not supported"
+    exit 1 
+    ;;
+esac
