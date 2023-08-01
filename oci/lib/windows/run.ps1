@@ -71,6 +71,18 @@ function Backend-Podman {
     }
 }
 
+function CleanUp-Backend-Podman {
+    podman machine stop
+    podman machine rm -f
+
+    wsl --unregister podman-machine-default
+}
+
+function CleanUp-Backend-CRC {
+    crc stop
+    crc cleanup
+}
+
 switch ($backend)
 {
     "podman" {
@@ -97,3 +109,20 @@ $env:E2E_JUNIT_OUTPUTFILE="$targetFolder/$junitResultsFilename"
 # Run e2e
 $env:PATH="$env:PATH;$env:HOME\$targetFolder;"
 podman-backend-e2e.exe
+
+# Cleanup backend
+switch ($backend)
+{
+    "podman" {
+        CleanUp-Backend-Podman
+    }
+    "crc-podman" {
+        CleanUp-Backend-CRC
+    }
+    "crc-microshift" {
+        CleanUp-Backend-CRC
+    }
+    "crc-openshift" {
+        CleanUp-Backend-CRC
+    }
+}
