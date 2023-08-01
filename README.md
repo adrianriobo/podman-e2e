@@ -15,7 +15,7 @@ An uses set of functional tests defined by [podman upstream](https://github.com/
 ### windows amd64 with podman backend (install and start)
 
 ```bash
-PODMAN_VERSION=4.5.1
+PODMAN_VERSION=4.6.0
 podman run --rm -it --name podman-backend-e2e \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
@@ -36,7 +36,7 @@ podman run --rm -it --name podman-backend-e2e \
 ### darwin arm64 with crc podman backend (install and start)
 
 ```bash
-PODMAN_VERSION=4.5.1
+PODMAN_VERSION=4.6.0
 podman run -d --name podman-backend-e2e-darwin-m1 \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
@@ -58,7 +58,7 @@ podman run -d --name podman-backend-e2e-darwin-m1 \
 ### darwin amd64 with crc microshift backend
 
 ```bash
-PODMAN_VERSION=4.5.1
+PODMAN_VERSION=4.6.0
 # Here we need to pass the pullsecret to spin the microshift cluster
 podman run -d --name podman-backend-e2e-darwin-m1 \
     -e TARGET_HOST=$(cat host) \
@@ -83,7 +83,7 @@ podman run -d --name podman-backend-e2e-darwin-m1 \
 ### windows amd64 with crc microshift openshift backend
 
 ```bash
-PODMAN_VERSION=4.5.1
+PODMAN_VERSION=4.6.0
 podman run --rm -it --name podman-backend-e2e \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
