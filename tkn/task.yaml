@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: podman-backend-e2e
   labels:
-    app.kubernetes.io/version: "4.6.0"
+    app.kubernetes.io/version: "4.7.1"
     redhat.com/product: podman-backend
     dev.lifecycle.io/phase: testing
   annotations:
@@ -103,7 +103,7 @@ spec:
 
   steps:
   - name: e2e
-    image: quay.io/rhqp/podman-backend-e2e:v4.6.0-$(params.os)-$(params.arch)
+    image: quay.io/rhqp/podman-backend-e2e:v4.7.1-$(params.os)-$(params.arch)
     script: |
       #!/bin/bash
 

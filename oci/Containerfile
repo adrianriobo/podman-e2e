@@ -1,7 +1,7 @@
 
 FROM docker.io/library/golang:1.18-alpine as builder
 
-ARG PODMAN_VERSION=4.4.4 
+ARG PODMAN_VERSION=4.7.1 
 ARG OS 
 ARG ARCH
 
@@ -11,7 +11,7 @@ ENV PODMAN_VERSION=${PODMAN_VERSION} \
     ORIGIN=https://github.com/adrianriobo/podman.git \
     UPSTREAM=https://github.com/containers/podman.git \
     RPMAMP_BRANCH=podman-backend-e2e \
-    PRMAMP_COMMIT=cdc77c592b9d782f1df824b29298e62afc5e1b77 \
+    PRMAMP_COMMIT=6cb69bf1eef2feba5f68288d8e946fd07f8db599 \
     AUTHOR_NAME="Adrian Riobo" \
     AUTHOR_EMAIL="ariobolo@redhat.com"
 
@@ -29,7 +29,7 @@ RUN apk add git gcc g++ linux-headers \
                     test/e2e/config.go test/e2e/config_amd64.go  \
                     test/e2e/container_inspect_test.go test/e2e/events_test.go test/e2e/exists_test.go \
                     test/e2e/export_test.go test/e2e/history_test.go test/e2e/image_scp_test.go test/e2e/import_test.go \
-                    test/e2e/init_test.go test/e2e/kill_test.go test/e2e/load_test.go test/e2e/namespace_test.go \
+                    test/e2e/init_test.go test/e2e/inspect_test.go test/e2e/kill_test.go test/e2e/load_test.go \
                     test/e2e/negative_test.go test/e2e/network_connect_disconnect_test.go test/e2e/pause_test.go \
                     test/e2e/pod_infra_container_test.go test/e2e/pod_initcontainers_test.go test/e2e/pod_inspect_test.go \
                     test/e2e/pod_kill_test.go test/e2e/pod_pause_test.go test/e2e/pod_pod_namespaces_test.go \
