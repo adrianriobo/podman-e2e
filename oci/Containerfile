@@ -47,7 +47,7 @@ RUN apk add git gcc g++ linux-headers \
                 -c -o ./build/podman-backend-e2e
 # test/e2e/attach_test.go
 
-FROM quay.io/rhqp/deliverest:v0.0.2
+FROM quay.io/rhqp/deliverest:v0.0.3
 
 LABEL org.opencontainers.image.authors="Adrian Riobo<ariobolo@redhat.com>"
 
