@@ -61,6 +61,9 @@ spec:
         * crc-microshift (This requires set crc-secret param)
         * crc-openshift (This requires set crc-secret param)
     default: crc-microshift
+  - name: wsl-fix-install
+    description: Check if wsl is installed if not it will install, default false.
+    default: 'false'
   - name: podman-install
     description: If podman set as podman-backed in case podman-install true it will download and install podman version from github 
     default: 'false'
@@ -138,6 +141,7 @@ spec:
           cmd="$cmd -backend $(params.podman-backend) "
           cmd="$cmd -podmanInstall $(params.podman-install) "
           cmd="$cmd -podmanStart $(params.podman-start) "
+          cmd="$cmd -wslInstallFix $(param.wsl-fix-install) "
           cmd="$cmd -pullsecretFilename pullsecret "
           ;;
 
