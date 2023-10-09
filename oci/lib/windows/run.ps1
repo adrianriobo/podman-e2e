@@ -1,6 +1,6 @@
 param(
-    [Parameter(Mandatory,HelpMessage='podman version to be tested')]
-    $podmanVersion,
+    [Parameter(HelpMessage='podman version to be tested in case we want to install it')]
+    $podmanVersion="",
     [Parameter(Mandatory,HelpMessage='folder on target host where assets are copied')]
     $targetFolder,
     [Parameter(Mandatory,HelpMessage='junit results filename')]
@@ -12,7 +12,9 @@ param(
     [Parameter(HelpMessage='Check if podman backend should be installed, default false.')]
     $podmanInstall="false",
     [Parameter(HelpMessage='Check if podman machine should be started, default false.')]
-    $podmanStart="false"
+    $podmanStart="false",
+    [Parameter(HelpMessage='Check if wsl is installed if not it will install, default false.')]
+    $wslInstallFix="false"
 )
 
 function Backend-CRC-Podman {
@@ -47,14 +49,17 @@ function Backend-CRC-Microshift {
 
 function Backend-Podman {
     # Force install just in case
-    wsl -l -v
-    $installed=$?
+    if ( $wslInstallFix -match 'true' )
+    {
+        wsl -l -v
+        $installed=$?
 
-    if (!$installed) {
-        Write-Host "installing wsl2"
-        wsl --install  
+        if (!$installed) {
+            Write-Host "installing wsl2"
+            wsl --install 
+        }
     }
-
+   
     # Install podman
     if ( $podmanInstall -match 'true' )
     {
