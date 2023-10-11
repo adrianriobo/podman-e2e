@@ -109,11 +109,11 @@ mv $targetFolder/podman-backend-e2e $targetFolder/podman-backend-e2e.exe
 $env:PODMAN_BINARY="podman"
 mkdir $targetFolder/tmp
 $env:TMPDIR="$env:HOME\$targetFolder/tmp"
-$env:E2E_JUNIT_OUTPUTFILE="$targetFolder/$junitResultsFilename"
+# $env:E2E_JUNIT_OUTPUTFILE="$targetFolder/$junitResultsFilename"
 
 # Run e2e
 $env:PATH="$env:PATH;$env:HOME\$targetFolder;"
-podman-backend-e2e.exe
+podman-backend-e2e.exe --ginkgo.vv --ginkgo.junit-report="$targetFolder/$junitResultsFilename"
 
 # Cleanup backend
 switch ($backend)

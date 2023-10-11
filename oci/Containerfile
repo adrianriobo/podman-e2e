@@ -11,7 +11,7 @@ ENV PODMAN_VERSION=${PODMAN_VERSION} \
     ORIGIN=https://github.com/adrianriobo/podman.git \
     UPSTREAM=https://github.com/containers/podman.git \
     RPMAMP_BRANCH=podman-backend-e2e \
-    PRMAMP_COMMIT=6cb69bf1eef2feba5f68288d8e946fd07f8db599 \
+    PRMAMP_COMMIT=3eef750744027240f46d44a0147e79b5ef0801af \
     AUTHOR_NAME="Adrian Riobo" \
     AUTHOR_EMAIL="ariobolo@redhat.com"
 
