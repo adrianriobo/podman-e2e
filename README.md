@@ -101,3 +101,23 @@ podman run --rm -it --name podman-backend-e2e \
             -junitResultsFilename podman-backend-e2e-results.xml \
             -pullsecretFilename pullsecret
 ```
+
+## podman preparation
+
+```bash
+VERSION=4.8.2
+
+git fetch upstream
+git checkout -b custom v${VERSION}
+git checkout podman-backend-e2e
+commit=$(git log -n 1 | grep commit | awk '{ print $2 }')
+git checkout custom
+git cherry-pick $commit
+# solve conflicts if any
+
+git branch -D podman-backend-e2e
+git checkout -b podman-backend-e2e
+git push -f origin podman-backend-e2e
+git tag v${VERSION}-multi-e2e
+git push origin v${VERSION}-multi-e2e
+```

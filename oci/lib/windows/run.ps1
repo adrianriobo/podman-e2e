@@ -13,6 +13,10 @@ param(
     $podmanInstall="false",
     [Parameter(HelpMessage='Check if podman machine should be started, default false.')]
     $podmanStart="false",
+    [Parameter(HelpMessage='Passing possible options for the podman machine init (i.e --rootful --user-mode-networking). default empty')]
+    $podmanOpts="",
+    [Parameter(HelpMessage='Set the podman machine provider (wsl or hyperv)), default wsl ')]
+    $podmanProvider="wsl",
     [Parameter(HelpMessage='Check if wsl is installed if not it will install, default false.')]
     $wslInstallFix="false"
 )
@@ -63,15 +67,18 @@ function Backend-Podman {
     # Install podman
     if ( $podmanInstall -match 'true' )
     {
+        cd $targetFolder
         curl -LO "https://github.com/containers/podman/releases/download/v$podmanVersion/podman-v$podmanVersion.msi"
         Start-Process C:\Windows\System32\msiexec.exe -ArgumentList "/qb /i podman-v$podmanVersion.msi /norestart" -wait
         $env:PATH="$env:PATH;C:\Program Files\RedHat\Podman"
+        cd ..
     }
 
     if ( $podmanStart -match 'true' )
     {
         # Start podman machine
-        podman machine init
+        set CONTAINERS_MACHINE_PROVIDER=$podmanProvider
+        podman machine init $podmanOpts
         podman machine start
     }
 }
