@@ -60,15 +60,28 @@ backend_podman () {
     # Install podman
     if [[ ${PODMAN_INSTALL} == "true" ]]
     then
+        pushd ${TARGET_FOLDER}
         curl -kL https://github.com/containers/podman/releases/download/v${PODMAN_VERSION}/podman-installer-macos-${ARCH}.pkg -o podman-installer-macos.pkg
         sudo installer -pkg podman-installer-macos.pkg -target /
+        popd
         PATH=$PATH:/opt/podman/bin/podman
     fi
 
+    # Start podman machine
     if [[ ${PODMAN_START} == "true" ]]
-    then
-        # Start podman machine
-        ${PODMAN_BINARY} machine init
+    then    
+        export CONTAINERS_MACHINE_PROVIDER=${PODMAN_PROVIDER}
+        # this is a workaround until applehv is GA as so vfkit will be included within the podman installer
+        # TODO remove once applehv GA
+        if [[ ${PODMAN_PROVIDER} == 'applehv' ]]
+        then
+            pushd ${TARGET_FOLDER}
+            curl -LO https://github.com/crc-org/vfkit/releases/download/v0.5.0/vfkit
+            chmod +x vfkit
+            popd    
+            sudo ln -s ${HOME}/${TARGET_FOLDER}/vfkit /usr/local/bin/vfkit
+        fi
+        ${PODMAN_BINARY} machine init ${PODMAN_OPTS}   
         ${PODMAN_BINARY} machine start
     fi
 }
@@ -83,6 +96,9 @@ cleanup_backend_podman () {
         ${PODMAN_BINARY} machine stop
         ${PODMAN_BINARY} machine rm -f
     fi
+    # Fix for applehv not GA with podman
+    # TODO remove once applehv GA
+    sudo rm -rf /usr/local/bin/vfkit
 }
 
 cleanup_backend_crc_podman () {
@@ -103,6 +119,11 @@ BACKEND="${BACKEND:-"podman"}"
 PODMAN_INSTALL="${PODMAN_INSTALL:-"false"}"
 # Check if podman machine should be started, default false.
 PODMAN_START="${PODMAN_START:-"false"}"
+# Set the podman machine provider (qemu or applehv)
+PODMAN_PROVIDER="${PODMAN_PROVIDER:-"qemu"}"
+# Passing possible options for the podman machine init (i.e --rootful --user-mode-networking)
+PODMAN_OPTS="${PODMAN_OPTS:-""}"
+
 
 # Prepare the backend
 case "${BACKEND}" in
@@ -136,7 +157,7 @@ export E2E_JUNIT_OUTPUTFILE="${TARGET_FOLDER}/${JUNIT_RESULTS_FILENAME}"
 
 # Run e2e
 export PATH="$PATH:$HOME/${TARGET_FOLDER}"
-podman-backend-e2e
+podman-backend-e2e | tee ${TARGET_FOLDER}/podman-backend-e2e.log
 
 # Cleanup backed
 case "${BACKEND}" in
