@@ -1,7 +1,7 @@
 
 FROM docker.io/library/golang:1.18-alpine as builder
 
-ARG PODMAN_VERSION=4.7.1 
+ARG PODMAN_VERSION=4.9.0 
 ARG OS 
 ARG ARCH
 
@@ -9,9 +9,6 @@ ENV PODMAN_VERSION=${PODMAN_VERSION} \
     GOOS=${OS} \
     GOARCH=${ARCH} \
     ORIGIN=https://github.com/adrianriobo/podman.git \
-    UPSTREAM=https://github.com/containers/podman.git \
-    RPMAMP_BRANCH=podman-backend-e2e \
-    PRMAMP_COMMIT=ad7c9ebc864930916bc851301342916f0db99052 \
     AUTHOR_NAME="Adrian Riobo" \
     AUTHOR_EMAIL="ariobolo@redhat.com"
 
@@ -19,11 +16,7 @@ RUN apk add git gcc g++ linux-headers \
     && git config --global user.email ${AUTHOR_EMAIL} \
     && git config --global user.name ${AUTHOR_NAME} \
     && git clone ${ORIGIN} \
-    && git -C podman remote add upstream ${UPSTREAM} \
-    && git -C podman checkout ${RPMAMP_BRANCH} \
-    && git -C podman fetch upstream refs/tags/v${PODMAN_VERSION}:refs/tags/v${PODMAN_VERSION} \
-    && git -C podman switch -c rpmamp v${PODMAN_VERSION} \
-    && git -C podman cherry-pick ${PRMAMP_COMMIT} --strategy-option theirs \
+    && git -C podman checkout -b podman-backend-e2e v${PODMAN_VERSION}-multi-e2e \
     && cd podman \
     && go test -v test/e2e/libpod_suite_test.go test/e2e/common_test.go \
                     test/e2e/config.go test/e2e/config_amd64.go  \

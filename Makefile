@@ -1,4 +1,4 @@
-PODMAN_VERSION ?= 4.8.2
+PODMAN_VERSION ?= 4.9.0
 CONTAINER_MANAGER ?= podman
 
 # Image URL to use all building/pushing image targets
