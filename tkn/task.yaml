@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: podman-backend-e2e
   labels:
-    app.kubernetes.io/version: "4.7.1"
+    app.kubernetes.io/version: "4.9.0"
     redhat.com/product: podman-backend
     dev.lifecycle.io/phase: testing
   annotations:
@@ -46,7 +46,7 @@ spec:
   # Podman params
   - name: podman-version
     description: podman version to be tested
-    default: '4.6.0'
+    default: '4.9.0'
   - name: podman-backend
     description: |
       backend providing podman functionality. Allowed values:
@@ -70,6 +70,12 @@ spec:
   - name: podman-start
     description: If podman set as podman-backed in case podman-start true it will init and start the podman machine
     default: 'false'
+  - name: podman-provider
+    description: Set the provider to be tested for podman machine
+    default: "''"
+  - name: podman-opts
+    description: Pass podman opts to the execution
+    default: "''" 
   - name: crc-secret
     description: |
       crc secret name holding the pullsecret. 
@@ -106,7 +112,7 @@ spec:
 
   steps:
   - name: e2e
-    image: quay.io/rhqp/podman-backend-e2e:v4.7.1-$(params.os)-$(params.arch)
+    image: quay.io/rhqp/podman-backend-e2e:v4.9.0-$(params.os)-$(params.arch)
     script: |
       #!/bin/bash
 
@@ -143,6 +149,12 @@ spec:
           cmd="$cmd -podmanStart $(params.podman-start) "
           cmd="$cmd -wslInstallFix $(param.wsl-fix-install) "
           cmd="$cmd -pullsecretFilename pullsecret "
+          if [[ $(params.podman-provider) != "" ]]; then
+            build_cmd="$cmd -podmanProvider $(params.podman-provider) "
+          fi
+          if [[ $(params.podman-opts) != "" ]]; then
+            build_cmd="$cmd -podmanOpts $(params.podman-opts) "
+          fi
           ;;
 
         darwin)
@@ -154,6 +166,12 @@ spec:
           cmd="$cmd PODMAN_START=$(params.podman-start) "
           cmd="$cmd PULLSECRET_FILENAME=pullsecret "
           cmd="$cmd ARCH=$(params.arch) "
+          if [[ $(params.podman-provider) != "" ]]; then
+            build_cmd="$cmd PODMAN_PROVIDER=$(params.podman-provider) "
+          fi
+          if [[ $(params.podman-opts) != "" ]]; then
+            build_cmd="$cmd PODMAN_OPTS=$(params.podman-opts) "
+          fi
           cmd="$cmd ${TARGET_FOLDER}/run.sh"
           ;;
 
