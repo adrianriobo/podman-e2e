@@ -23,9 +23,6 @@ spec:
     * crc-podman 
     * crc-microshift
     * crc-openshift
-
-  workspaces:
-  - name: pipelines-data
   
   params:
   # Target host params
@@ -57,9 +54,11 @@ spec:
 
         (For crc options it is expected crc is already installed on the target):
 
+        * podman
         * crc-podman 
         * crc-microshift (This requires set crc-secret param)
         * crc-openshift (This requires set crc-secret param)
+
     default: crc-microshift
   - name: wsl-fix-install
     description: Check if wsl is installed if not it will install, default false.
@@ -76,21 +75,6 @@ spec:
   - name: podman-opts
     description: Pass podman opts to the execution
     default: "''" 
-  - name: crc-secret
-    description: |
-      crc secret name holding the pullsecret. 
-
-      secret should match following format:
-      ---
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: ${secret-name}
-      type: Opaque
-      data:
-        pullsecret: ${pullsecret-value}
-
-    default: ''
   # Result params
   - name: worspace-qe-subpath
     description: subpath relative to workspace path where results are stored
@@ -113,8 +97,11 @@ spec:
   steps:
   - name: e2e
     image: quay.io/rhqp/podman-backend-e2e:v4.9.0-$(params.os)-$(params.arch)
+    imagePullPolicy: Always
     script: |
       #!/bin/bash
+
+      set -xuo
 
       # Prepare ENVs
       SECONDS=0
@@ -150,10 +137,10 @@ spec:
           cmd="$cmd -wslInstallFix $(param.wsl-fix-install) "
           cmd="$cmd -pullsecretFilename pullsecret "
           if [[ $(params.podman-provider) != "" ]]; then
-            build_cmd="$cmd -podmanProvider $(params.podman-provider) "
+            cmd="$cmd -podmanProvider $(params.podman-provider) "
           fi
           if [[ $(params.podman-opts) != "" ]]; then
-            build_cmd="$cmd -podmanOpts $(params.podman-opts) "
+            cmd="$cmd -podmanOpts $(params.podman-opts) "
           fi
           ;;
 
@@ -167,10 +154,10 @@ spec:
           cmd="$cmd PULLSECRET_FILENAME=pullsecret "
           cmd="$cmd ARCH=$(params.arch) "
           if [[ $(params.podman-provider) != "" ]]; then
-            build_cmd="$cmd PODMAN_PROVIDER=$(params.podman-provider) "
+            cmd="$cmd PODMAN_PROVIDER=$(params.podman-provider) "
           fi
           if [[ $(params.podman-opts) != "" ]]; then
-            build_cmd="$cmd PODMAN_OPTS=$(params.podman-opts) "
+            cmd="$cmd PODMAN_OPTS=$(params.podman-opts) "
           fi
           cmd="$cmd ${TARGET_FOLDER}/run.sh"
           ;;
@@ -186,10 +173,6 @@ spec:
 
       # Results
       echo -n "${SECONDS}" | tee $(results.duration.path)
-
-    volumeMounts:
-    - mountPath: /opt/crc
-      name: crc-secret  
       
     resources:      
       requests:
@@ -199,9 +182,21 @@ spec:
         memory: "70Mi"
         cpu: "10m"
 
-  volumes:
-  - name: crc-secret
-    secret:
-      secretName: $(params.crc-secret)
-      optional: true
+  workspaces:
+  - name: pipelines-data
+  - name: ocp-pullsecret
+    optional: true
+    description: |
+      crc secret name holding the pullsecret. This is only required if backed tested is crc preset
+
+      secret should match following format:
+      ---
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${secret-name}
+      type: Opaque
+      data:
+        pullsecret: ${pullsecret-value}
+    mountPath: /opt/crc
   
