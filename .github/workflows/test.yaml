@@ -1,0 +1,20 @@
+name: test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  darwin:
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      
+        
+    steps:
+    - name: data
+      run: |
+        sw_vers
+        uname -a
+
+   
