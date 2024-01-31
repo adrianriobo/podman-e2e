@@ -16,5 +16,10 @@ jobs:
       run: |
         sw_vers
         uname -a
+        curl -LO https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/crc/2.31.0/crc-macos-installer.pkg
+        sudo installer -pkg crc-macos-installer.pkg -target /
+        crc config set preset podman
+        crc setup --log-level debug
+        crc start --log-level debug
 
    
