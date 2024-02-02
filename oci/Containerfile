@@ -1,7 +1,7 @@
 
 FROM docker.io/library/golang:1.18-alpine as builder
 
-ARG PODMAN_VERSION=4.9.0 
+ARG PODMAN_VERSION=4.9.1 
 ARG OS 
 ARG ARCH
 
