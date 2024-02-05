@@ -108,6 +108,7 @@ podman run --rm -it --name podman-backend-e2e \
 VERSION=4.8.2
 
 git fetch upstream
+git branch -D custom
 git checkout -b custom v${VERSION}
 git checkout podman-backend-e2e
 commit=$(git log -n 1 | grep commit | awk '{ print $2 }')
