@@ -37,6 +37,9 @@ spec:
   - name: os
     description: type of platform per target host (linux, windows, macos)
     default: windows
+  - name: os-version
+    description: version for the target os
+    default: ''
   - name: arch
     description: type of arch per target host (linux, windows, macos)
     default: amd64
@@ -171,6 +174,17 @@ spec:
       # Exec
       . entrypoint.sh "${cmd}"
 
+      # Create snapshot with performance metrics during e2e
+      curl -XPOST localhost:9090/api/v1/admin/tsdb/snapshot > snaphost-creation.json
+      # Use jq to get the snapshot compress and change name
+      # https://github.com/adrianriobo/deliverest/issues/26
+      apk add jq 
+      snap_id=$(jq -r '.data.name' snaphost-creation.json)
+      # Check content
+      pushd $(workspaces.pipelines-data.path)/$(params.workspace-resources-path)/tmp-prom-$(params.podman-provider)/snapshots
+      tar -zcvf prom-$(params.podman-provider).tar.gz ${snap_id}
+      cp prom-$(params.podman-provider).tar.gz $(workspaces.pipelines-data.path)/$(params.workspace-resources-path)/$(params.worspace-qe-subpath)
+
       # Results
       echo -n "${SECONDS}" | tee $(results.duration.path)
       
@@ -181,6 +195,42 @@ spec:
       limits:
         memory: "70Mi"
         cpu: "10m"
+
+  sidecars:
+  - name: performance-db
+    image: quay.io/prometheus/prometheus:v2.45.3
+    script: |
+      #!/bin/sh
+
+      set -exuo
+
+      cat <<EOF > /etc/prometheus/prometheus.yml
+      global:
+        scrape_interval: 15s
+
+      scrape_configs:
+      - job_name: $(params.podman-provider)
+        static_configs:
+        - targets: ['$(params.host):9100']
+          labels:
+            provider: $(params.podman-provider)
+            os: $(params.os) 
+            osversion: $(params.os-version)
+            arch: $(params.arch)
+
+      EOF
+
+      DATA_FOLDER="$(workspaces.pipelines-data.path)/$(params.workspace-resources-path)/tmp-prom-$(params.podman-provider)"
+      mkdir -p "${DATA_FOLDER}"
+
+      # Run prometheus to scrap the metrics while running tests
+      exec prometheus --config.file=/etc/prometheus/prometheus.yml \
+                      --storage.tsdb.path="${DATA_FOLDER}" \
+                      --web.enable-admin-api
+
+    volumeMounts:
+    - name: $(workspaces.pipelines-data.volume)
+      mountPath: $(workspaces.pipelines-data.path)
 
   workspaces:
   - name: pipelines-data
