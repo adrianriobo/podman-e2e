@@ -83,6 +83,24 @@ backend_podman () {
         fi
         ${PODMAN_BINARY} machine init ${PODMAN_OPTS}   
         ${PODMAN_BINARY} machine start
+
+        if [[ ${MONITORING_ENABLE} == 'true' ]]
+        then
+            # Run node exporter on the target host
+
+            # Run node exporter on the target machine
+            # we need to run the binary otherwise tests will destroy the container
+            # ${PODMAN_BINARY} machine ssh 'podman run -d -p 9200:9100 -v "/:/host:ro,rslave" quay.io/prometheus/node-exporter:latest --path.rootfs=/host'
+            # Also this approach is not working with applehv until podman 5.0 
+            # https://github.com/containers/podman/pull/21207/commits/83fa4843f6fe4e98db3e2310d62f729c2eca63b7
+            ${PODMAN_BINARY} machine ssh 'curl -LO https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz'
+            ${PODMAN_BINARY} machine ssh 'tar -xzvf node_exporter-1.7.0.linux-amd64.tar.gz --strip-components 1'
+            # https://github.com/prometheus/node_exporter?tab=readme-ov-file#perf-collector
+            ${PODMAN_BINARY} machine ssh 'sudo sysctl -w kernel.perf_event_paranoid=0'
+            ${PODMAN_BINARY} machine ssh 'nohup ./node_exporter --web.listen-address=:52200 > nohup.out 2> nohup.err < /dev/null &'
+            # https://github.com/containers/gvisor-tap-vsock?tab=readme-ov-file#port-forwarding
+            ${PODMAN_BINARY} machine ssh "curl gateway.containers.internal/services/forwarder/expose -X POST -d '{\"local\":\":52200\",\"remote\":\"192.168.127.2:52200\"}'"
+        fi
     fi
 }
 
@@ -123,7 +141,8 @@ PODMAN_START="${PODMAN_START:-"false"}"
 PODMAN_PROVIDER="${PODMAN_PROVIDER:-"qemu"}"
 # Passing possible options for the podman machine init (i.e --rootful --user-mode-networking)
 PODMAN_OPTS="${PODMAN_OPTS:-""}"
-
+# If enable it will run node exporter insde the guest machine
+MONITORING_ENABLE="${MONITORING_ENABLE:-"false"}"
 
 # Prepare the backend
 case "${BACKEND}" in
