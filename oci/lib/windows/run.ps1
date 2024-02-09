@@ -18,7 +18,9 @@ param(
     [Parameter(HelpMessage='Set the podman machine provider (wsl or hyperv)), default wsl ')]
     $podmanProvider="wsl",
     [Parameter(HelpMessage='Check if wsl is installed if not it will install, default false.')]
-    $wslInstallFix="false"
+    $wslInstallFix="false",
+    [Parameter(HelpMessage=' If enable it will run node exporter insde the guest machine, default false.')]
+    $monitoringEnable="false"
 )
 
 function Backend-CRC-Podman {
@@ -80,6 +82,21 @@ function Backend-Podman {
         set CONTAINERS_MACHINE_PROVIDER=$podmanProvider
         podman machine init $podmanOpts
         podman machine start
+
+        if ( $monitoringEnable -match 'true' )
+        {
+            # Enable monitoring on target host
+            # https://github.com/prometheus-community/windows_exporter
+
+            # Enable monitoring on guest machine
+            podman machine ssh 'curl -LO https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz'
+            podman machine ssh 'tar -xzvf node_exporter-1.7.0.linux-amd64.tar.gz --strip-components 1'
+            # https://github.com/prometheus/node_exporter?tab=readme-ov-file#perf-collector
+            podman machine ssh 'sudo sysctl -w kernel.perf_event_paranoid=0'
+            podman machine ssh 'nohup ./node_exporter --web.listen-address=:52200 > nohup.out 2> nohup.err < /dev/null &'
+            # https://github.com/containers/gvisor-tap-vsock?tab=readme-ov-file#port-forwarding
+            podman machine ssh "curl gateway.containers.internal/services/forwarder/expose -X POST -d '{\"local\":\":52200\",\"remote\":\"192.168.127.2:52200\"}'"
+        }
     }
 }
 
