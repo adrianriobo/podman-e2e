@@ -105,20 +105,20 @@ podman run --rm -it --name podman-backend-e2e \
 ## podman preparation
 
 ```bash
-VERSION=5.0.0
+VERSION=5.0.1
 
 git fetch upstream
 git branch -D custom
 git checkout -b custom v${VERSION}
-git checkout podman-backend-e2e
+git checkout 5.0.X-multi-e2e
 commit=$(git log -n 1 | grep commit | awk '{ print $2 }')
 git checkout custom
 git cherry-pick $commit
 # solve conflicts if any
 
-git branch -D podman-backend-e2e
-git checkout -b podman-backend-e2e
-git push -f origin podman-backend-e2e
+git branch -D 5.0.X-multi-e2e
+git checkout -b 5.0.X-multi-e2e
+git push -f origin 5.0.X-multi-e2e
 git tag v${VERSION}-multi-e2e
 git push origin v${VERSION}-multi-e2e
 ```
