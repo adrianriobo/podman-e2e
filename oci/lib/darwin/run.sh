@@ -16,7 +16,7 @@ mandatory_params () {
 }
  
 backend_crc_podman () {
-    PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
+    PODMAN_BINARY="$HOME/.crc/bin/podman/podman"
 
     crc config set preset podman
     crc setup
@@ -29,7 +29,7 @@ backend_crc_microshift () {
     [[ -z "${PULLSECRET_FILENAME+x}" ]] \
         && exit 1
 
-    PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
+    PODMAN_BINARY="$HOME/.crc/bin/podman/podman"
 
     crc config set preset microshift
     crc setup
@@ -42,7 +42,7 @@ backend_crc_openshift () {
     [[ -z "${PULLSECRET_FILENAME+x}" ]] \
         && exit 1
 
-    PODMAN_BINARY="$HOME/.crc/bin/oc/podman"
+    PODMAN_BINARY="$HOME/.crc/bin/podman/podman"
 
     crc config set preset openshift
     crc setup
