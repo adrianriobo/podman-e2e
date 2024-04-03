@@ -14,15 +14,6 @@ mandatory_params () {
 
     return $validate
 }
- 
-backend_crc_podman () {
-    PODMAN_BINARY="$HOME/.crc/bin/podman/podman"
-
-    crc config set preset podman
-    crc setup
-    crc start
-    eval $(crc podman-env)    
-}
 
 backend_crc_microshift () {
 
@@ -119,7 +110,7 @@ cleanup_backend_podman () {
     sudo rm -rf /usr/local/bin/vfkit
 }
 
-cleanup_backend_crc_podman () {
+cleanup_backend_crc () {
 
     crc stop
     crc cleanup
@@ -184,8 +175,8 @@ case "${BACKEND}" in
     cleanup_backend_podman
     ;;
 
-  crc-podman|crc-microshift|crc-openshift)
-    cleanup_backend_crc_podman
+  crc-microshift|crc-openshift)
+    cleanup_backend_crc
     ;;
 
   *)

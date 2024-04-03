@@ -7,7 +7,7 @@ param(
     $junitResultsFilename,
     [Parameter(HelpMessage='pullsecret filename at target folder')]
     $pullsecretFilename,
-    [Parameter(HelpMessage='backend for podman. podman, crc-podman, crc-microshift or crc-openshift')]
+    [Parameter(HelpMessage='backend for podman. podman, crc-microshift or crc-openshift')]
     $backend="podman",
     [Parameter(HelpMessage='Check if podman backend should be installed, default false.')]
     $podmanInstall="false",
@@ -22,16 +22,6 @@ param(
     [Parameter(HelpMessage=' If enable it will run node exporter insde the guest machine, default false.')]
     $monitoringEnable="false"
 )
-
-function Backend-CRC-Podman {
-   crc config set preset podman
-   crc setup
-   crc start
-   # SSH expands a terminal but due to how crc recognized the shell 
-   # it does not recognize powershell but other process so we force it
-   $env:SHELL="powershell"
-   & crc podman-env | Invoke-Expression
-}
 
 function Backend-CRC-Microshift {
     crc config set preset microshift
@@ -117,9 +107,6 @@ switch ($backend)
     "podman" {
         Backend-Podman
     }
-    "crc-podman" {
-        Backend-CRC-Podman
-    }
     "crc-microshift" {
         Backend-CRC-Microshift
     }
@@ -144,9 +131,6 @@ switch ($backend)
 {
     "podman" {
         CleanUp-Backend-Podman
-    }
-    "crc-podman" {
-        CleanUp-Backend-CRC
     }
     "crc-microshift" {
         CleanUp-Backend-CRC
