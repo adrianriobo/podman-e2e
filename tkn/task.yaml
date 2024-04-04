@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: podman-backend-e2e
   labels:
-    app.kubernetes.io/version: "4.9.3"
+    app.kubernetes.io/version: "4.9.4"
     redhat.com/product: podman-backend
     dev.lifecycle.io/phase: testing
   annotations:
@@ -45,7 +45,7 @@ spec:
   # Podman params
   - name: podman-version
     description: podman version to be tested
-    default: '4.9.3'
+    default: '4.9.4'
   - name: podman-backend
     description: |
       backend providing podman functionality. Allowed values:
@@ -96,7 +96,7 @@ spec:
 
   steps:
   - name: e2e
-    image: quay.io/rhqp/podman-backend-e2e:v4.9.3-$(params.os)-$(params.arch)
+    image: quay.io/rhqp/podman-backend-e2e:v4.9.4-$(params.os)-$(params.arch)
     imagePullPolicy: Always
     script: |
       #!/bin/bash
