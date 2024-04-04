@@ -1,5 +1,8 @@
 
-FROM docker.io/library/golang:1.18-alpine as builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.20 AS builder
+
+USER root
+WORKDIR /workspace
 
 ARG PODMAN_VERSION=4.9.3
 ARG OS 
@@ -9,11 +12,10 @@ ENV PODMAN_VERSION=${PODMAN_VERSION} \
     GOOS=${OS} \
     GOARCH=${ARCH} \
     ORIGIN=https://github.com/adrianriobo/podman.git \
-    AUTHOR_NAME="Adrian Riobo" \
-    AUTHOR_EMAIL="ariobolo@redhat.com"
+    AUTHOR_NAME="CRCQE" \
+    AUTHOR_EMAIL="devtools-cdkqe@redhat.com"
 
-RUN apk add git gcc g++ linux-headers \
-    && git config --global user.email ${AUTHOR_EMAIL} \
+RUN git config --global user.email ${AUTHOR_EMAIL} \
     && git config --global user.name ${AUTHOR_NAME} \
     && git clone ${ORIGIN} \
     && git -C podman checkout -b podman-backend-e2e v${PODMAN_VERSION}-multi-e2e \
@@ -40,9 +42,9 @@ RUN apk add git gcc g++ linux-headers \
                 -c -o ./build/podman-backend-e2e
 # test/e2e/attach_test.go
 
-FROM quay.io/rhqp/deliverest:v0.0.3
+FROM quay.io/rhqp/deliverest:v0.0.5
 
-LABEL org.opencontainers.image.authors="Adrian Riobo<ariobolo@redhat.com>"
+LABEL org.opencontainers.image.authors="CRCQE <devtools-cdkqe@redhat.com>"
 
 ARG OS 
 ARG ARCH
@@ -51,6 +53,6 @@ ENV ASSETS_FOLDER=/opt/podman-backend-e2e \
     OS=${OS} \
     ARCH=${ARCH}
 
-COPY --from=builder /go/podman/build/podman-backend-e2e ${ASSETS_FOLDER}/
+COPY --from=builder /workspace/podman/build/podman-backend-e2e ${ASSETS_FOLDER}/
 COPY /lib/${OS}/* ${ASSETS_FOLDER}/
 
