@@ -6,7 +6,10 @@ on:
     tags:        
       - '*'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
+      - 4.*
+      - 5.*
 
 jobs:
   build-prmamp-e2e:
