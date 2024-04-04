@@ -1,7 +1,7 @@
 
 FROM registry.access.redhat.com/ubi9/go-toolset as builder
 
-ARG PODMAN_VERSION=5.0.0
+ARG PODMAN_VERSION=5.0.1
 ARG OS 
 ARG ARCH
 
@@ -9,8 +9,8 @@ ENV PODMAN_VERSION=${PODMAN_VERSION} \
     GOOS=${OS} \
     GOARCH=${ARCH} \
     ORIGIN=https://github.com/adrianriobo/podman.git \
-    AUTHOR_NAME="Adrian Riobo" \
-    AUTHOR_EMAIL="ariobolo@redhat.com"
+    AUTHOR_NAME="CRCQE" \
+    AUTHOR_EMAIL="devtools-cdkqe@redhat.com"
 
 RUN git config --global user.email ${AUTHOR_EMAIL} \
     && git config --global user.name ${AUTHOR_NAME} \
@@ -41,7 +41,7 @@ RUN git config --global user.email ${AUTHOR_EMAIL} \
 
 FROM quay.io/rhqp/deliverest:v0.0.5
 
-LABEL org.opencontainers.image.authors="Adrian Riobo<ariobolo@redhat.com>"
+LABEL org.opencontainers.image.authors="CRCQE <devtools-cdkqe@redhat.com>"
 
 ARG OS 
 ARG ARCH
