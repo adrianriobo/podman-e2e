@@ -15,7 +15,7 @@ An uses set of functional tests defined by [podman upstream](https://github.com/
 ### windows amd64 with podman backend (install and start)
 
 ```bash
-PODMAN_VERSION=4.9.3
+PODMAN_VERSION=4.9.4
 podman run --rm -it --name podman-backend-e2e \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
@@ -33,32 +33,10 @@ podman run --rm -it --name podman-backend-e2e \
             -junitResultsFilename podman-backend-e2e-results.xml
 ```
 
-### darwin arm64 with crc podman backend (install and start)
-
-```bash
-PODMAN_VERSION=4.9.3
-podman run -d --name podman-backend-e2e-darwin-m1 \
-    -e TARGET_HOST=$(cat host) \
-    -e TARGET_HOST_USERNAME=$(cat username) \
-    -e TARGET_HOST_KEY_PATH=/data/id_rsa \
-    -e TARGET_FOLDER=podman-backend-e2e \
-    -e TARGET_RESULTS=podman-backend-e2e-results.xml \
-    -e OUTPUT_FOLDER=/data \
-    -e DEBUG=true \
-    -v $PWD:/data:z \
-    quay.io/rhqp/podman-backend-e2e:v${PODMAN_VERSION}-darwin-arm64 \
-        PODMAN_VERSION="${PODMAN_VERSION}" \
-        TARGET_FOLDER=podman-backend-e2e \
-        BACKEND=crc-podman \
-        JUNIT_RESULTS_FILENAME=podman-backend-e2e-results.xml \
-        ARCH=arm64 \
-        podman-backend-e2e/run.sh
-```
-
 ### darwin amd64 with crc microshift backend
 
 ```bash
-PODMAN_VERSION=4.9.3
+PODMAN_VERSION=4.9.4
 # Here we need to pass the pullsecret to spin the microshift cluster
 podman run -d --name podman-backend-e2e-darwin-m1 \
     -e TARGET_HOST=$(cat host) \
@@ -83,7 +61,7 @@ podman run -d --name podman-backend-e2e-darwin-m1 \
 ### windows amd64 with crc microshift openshift backend
 
 ```bash
-PODMAN_VERSION=4.9.3
+PODMAN_VERSION=4.9.4
 podman run --rm -it --name podman-backend-e2e \
     -e TARGET_HOST=$(cat host) \
     -e TARGET_HOST_USERNAME=$(cat username) \
@@ -105,7 +83,7 @@ podman run --rm -it --name podman-backend-e2e \
 ## podman preparation
 
 ```bash
-VERSION=4.9.3
+VERSION=4.9.4
 
 git fetch upstream
 git branch -D custom
